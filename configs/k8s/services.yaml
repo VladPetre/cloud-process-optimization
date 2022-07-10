@@ -1,0 +1,102 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: caller-svc
+  namespace: cpo
+  labels:
+    app: caller-svc
+    team: vsp
+spec:
+  selector:
+    app: caller
+  type: ClusterIP
+  ports:
+    - name: caller-p
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: enhancer-svc
+  namespace: cpo
+  labels:
+    app: enhancer-svc
+    team: vsp
+spec:
+  selector:
+    app: enhancer
+  type: ClusterIP
+  ports:
+    - name: enhancer-p
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-svc
+  namespace: cpo
+  labels:
+    app: gateway-svc
+    team: vsp
+spec:
+  selector:
+    app: gateway
+  type: ClusterIP
+  ports:
+    - name: receiver-r-p
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: localization-svc
+  namespace: cpo
+  labels:
+    app: localization-svc
+    team: vsp
+spec:
+  selector:
+    app: localization
+  type: ClusterIP
+  ports:
+    - name: localization-p
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-svc
+  namespace: cpo
+  labels:
+    app: notification
+    team: vsp
+spec:
+  selector:
+    app: notification
+  type: ClusterIP
+  ports:
+    - name: notification-p
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: processor-svc
+  namespace: cpo
+  labels:
+    app: processor
+    team: vsp
+spec:
+  selector:
+    app: processor
+  type: ClusterIP
+  ports:
+    - name: processor-p
+      port: 8080
+      targetPort: 8080

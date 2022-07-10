@@ -1,7 +1,6 @@
 package ro.vsp.cpocaller;
 
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +24,6 @@ public class AppConfiguration {
    * @return UUID.randomUUID()
    */
   @Bean
-  @Qualifier("uniqueInstanceUUID")
   public UUID uniqueInstanceUUID() {
     return UUID.randomUUID();
   }

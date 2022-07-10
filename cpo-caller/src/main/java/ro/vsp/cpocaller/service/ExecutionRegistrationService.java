@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import ro.vsp.cpocaller.model.ExecutionStep;
@@ -15,9 +14,8 @@ import ro.vsp.cpocaller.repository.ExecutionStepsRepository;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ExecutionRegistrationService {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionRegistrationService.class);
 
   private final ExecutionStepsRepository executionStepsRepository;
 
@@ -40,7 +38,7 @@ public class ExecutionRegistrationService {
         .collect(Collectors.toList());
 
     if (activeSteps.size() != 1) {
-      LOGGER.error("RT: None or Many steps were active!");
+      log.error("RT: None or Many steps were active!");
       throw new IllegalArgumentException("None or Many steps were active!");
     }
 
@@ -65,7 +63,7 @@ public class ExecutionRegistrationService {
         .collect(Collectors.toList());
 
     if (activeSteps.size() != 1) {
-      LOGGER.error("REACT: None or Many steps were active!");
+      log.error("REACT: None or Many steps were active!");
       throw new IllegalArgumentException("None or Many steps were active!");
     }
 

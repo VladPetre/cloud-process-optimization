@@ -9,9 +9,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -30,16 +28,16 @@ import ro.vsp.cpocaller.utils.HttpUtils;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ClasicCallerService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ClasicCallerService.class);
   private final RestTemplate restTemplate;
   private final ExecutionRegistrationService registrationService;
   private final SensorsService sensorsService;
   private final ExecutionStatusRepository executionStatusRepository;
+  private final UUID uniqueInstanceUuid;
 
-  @Qualifier("uniqueInstanceUUID")
-  private final UUID UNIQUE_INSTANCE_UUID;
+  private Random random = new Random();
 
 
   /**
@@ -51,13 +49,13 @@ public class ClasicCallerService {
 
     ExecutionStep step;
     try {
-      step = registrationService.getRTStepToExecute().get();
+      step = registrationService.getRTStepToExecute().orElseThrow();
     } catch (Exception e) {
       return;
     }
     List<Integer> list = IntStream.range(0, step.getEntriesNumber()).boxed()
         .collect(Collectors.toList());
-    ExecutionStatus execStatus = new ExecutionStatus(null, UNIQUE_INSTANCE_UUID,
+    ExecutionStatus execStatus = new ExecutionStatus(null, uniqueInstanceUuid,
         InstanceTypes.CALLER.toString(),
         null, null, 0, step);
 
@@ -65,7 +63,7 @@ public class ClasicCallerService {
 
     ForkJoinPool forkJoinPool = null;
 
-    LOGGER.info("Executing instance / step {}/{}", UNIQUE_INSTANCE_UUID, step);
+    log.info("Executing instance / step {}/{}", uniqueInstanceUuid, step);
 
     try {
       forkJoinPool = new ForkJoinPool(step.getThreadsNumber());
@@ -79,10 +77,12 @@ public class ClasicCallerService {
       executionStatusRepository.save(execStatus);
 
     } catch (Exception e) {
-      LOGGER.error("Error executing step {} - {}: {}", UNIQUE_INSTANCE_UUID, step, e);
+      log.error("Error executing step {} - {}: {}", uniqueInstanceUuid, step, e);
       execStatus.setError(1);
     } finally {
-      forkJoinPool.shutdown();
+      if (forkJoinPool != null) {
+        forkJoinPool.shutdown();
+      }
     }
 
   }
@@ -106,8 +106,8 @@ public class ClasicCallerService {
         sensorsService.updateSensorStatus(randomNr, sensor.getGuid());
 
       } catch (Exception e) {
-        LOGGER.error("Error calling receiver from {}, iteration {}, ex: {}",
-            UNIQUE_INSTANCE_UUID, x, e);
+        log.error("Error calling receiver from {}, iteration {}, ex: {}",
+            uniqueInstanceUuid, x, e);
       }
     };
   }
@@ -134,7 +134,7 @@ public class ClasicCallerService {
 
   private ResponseEntity<SensorDataDTO> doGetRequest(SensorDataDTO data) {
     HttpEntity<String> entity = new HttpEntity<>(
-        HttpUtils.buildRTHeaders(UNIQUE_INSTANCE_UUID.toString()));
+        HttpUtils.buildRTHeaders(uniqueInstanceUuid.toString()));
 
     return restTemplate
         .exchange("/rt/sensor-data/" + data.getGuid(), HttpMethod.GET, entity,
@@ -143,7 +143,7 @@ public class ClasicCallerService {
 
   private ResponseEntity<SensorDataDTO> doPostRequest(SensorDataDTO data) {
     HttpEntity<SensorDataDTO> entity = new HttpEntity<>(data,
-        HttpUtils.buildRTHeaders(UNIQUE_INSTANCE_UUID.toString()));
+        HttpUtils.buildRTHeaders(uniqueInstanceUuid.toString()));
 
     return restTemplate
         .exchange("/rt/sensor-data", HttpMethod.POST, entity,
@@ -152,7 +152,7 @@ public class ClasicCallerService {
 
   private ResponseEntity<SensorDataDTO> doPutRequest(SensorDataDTO data) {
     HttpEntity<SensorDataDTO> entity = new HttpEntity<>(data,
-        HttpUtils.buildRTHeaders(UNIQUE_INSTANCE_UUID.toString()));
+        HttpUtils.buildRTHeaders(uniqueInstanceUuid.toString()));
 
     return restTemplate
         .exchange("/rt/sensor-data/" + data.getGuid(), HttpMethod.PUT, entity,
@@ -160,6 +160,6 @@ public class ClasicCallerService {
   }
 
   public int getRandom(int min, int max) {
-    return new Random().nextInt(max - min) + min;
+    return random.nextInt(max - min) + min;
   }
 }

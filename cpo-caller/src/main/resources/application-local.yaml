@@ -1,0 +1,33 @@
+server:
+  port: 8091
+
+### Persistence ###
+spring:
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/postgres"
+    username: postgres
+    password: admin
+  jpa:
+    database: POSTGRESQL
+    show-sql: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  sql:
+    init:
+      platform: "postgres"
+
+### Metrics ###
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,prometheus"
+
+### ENV ###
+CPO_GATEWAY_URI: "http://cpo-gateway-svc.ropt.svc.cluster.local:8080"

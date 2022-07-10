@@ -1,0 +1,38 @@
+### Persistence ###
+spring:
+  application:
+    name: "cpo-caller"
+  datasource:
+    url: "jdbc:postgresql://pg-db-svc-ext:5432/localization"
+    username: ${PG_UN}
+    password: ${PG_PS}
+  jpa:
+    database: POSTGRESQL
+    show-sql: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  sql:
+    init:
+      platform: "postgres"
+
+### Metrics ###
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,prometheus"
+    jmx:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+### ENV ###
+CPO_GATEWAY_URI: "http://cpo-gateway-svc.ropt.svc.cluster.local:8080"

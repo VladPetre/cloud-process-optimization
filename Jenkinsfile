@@ -2,85 +2,82 @@ pipeline {
 
     agent any
     environment {
-        registry = "vladstep/${PARAM_MODULE}"
+        registry = "cpo/${PARAM_MODULE}"
+        registryRoot = "http://foxtrot.lan:5000"
+        registryClr = "foxtrot.lan:5000/cpo/${PARAM_MODULE}"
         imageTag = "latest"
-        registryCredential = 'dockerhub_id'
         dockerImage = ''
     }
 
     parameters {
-       choice(name: "PARAM_MODULE",
-              choices: ["cpo-caller","cpo-gateway","cpo-localization","cpo-enhancer","cpo-processor","cpo-notification"],
-              description: "Sample multi-choice parameter")
-       string(name: "PARAM_BRANCH", defaultValue: "master", trim: true, description: "branch name")
+        choice(name: "PARAM_MODULE",
+                choices: ["cpo-caller", "cpo-enhancer", "cpo-gateway", "cpo-localization", "cpo-notification", "cpo-processor"],
+                description: "Module to be built")
+        string(name: "PARAM_BRANCH", defaultValue: "main", trim: true, description: "branch name")
+        booleanParam name: 'SHOULD_DEPLOY', defaultValue: true, description: "should deploy"
     }
 
     stages {
 
-        stage('clean workspace') {
+        stage('Maven build') {
             steps {
-                cleanWs()
-                sh '''
-                  echo "build module: ${PARAM_MODULE}"
-                  echo "from branch: ${PARAM_BRANCH}"
-                '''
+                git branch: params.PARAM_BRANCH, poll: false, url: 'https://github.com/VladPetre/cloud-process-optimization.git'
+                dir("${params.PARAM_MODULE}") {
+                    sh '''
+                      mvn clean install -DskipTests
+                  '''
+                }
             }
         }
-//         stage('Cloning Git') {
-//             steps {
-//             sh '''
-//                 git clone https://github.com/VladPetre/cloud-process-optimization.git
-//                '''
-//             }
-//         }
-//
-//         stage('maven build') {
-//              steps {
-//                 sh '''
-//                     cd cloud-process-optimization/$params.MODULE
-//                     mvn install
-//                 '''
-//              }
-//         }
-//
-//         stage('Building docker image') {
-//             steps {
-//               sh '''
-//                 cp cloud-process-optimization/$params.MODULE/Dockerfile ./Dockerfile
-//               '''
-//               script {
-//                   dockerImage = docker.build registry + ":" + imageTag
-//               }
-//             }
-//         }
-//
-//         stage('push docker image') {
-//             steps {
-//                 script {
-//                     docker.withRegistry( '', registryCredential ) {
-//                         dockerImage.push()
-//                     }
-//                 }
-//             }
-//         }
-//
-//
-//         stage('Deploy App to Kube') {
-//               steps {
-//                 sh '''
-//                     cp cloud-process-optimization/$params.MODULE/deployment-service.yml ./deployment-service.yml
-//                 '''
-//                 script {
-//                 //!! kubernetes CD plugin should be different than 2.11.x
-//                   kubernetesDeploy(configs: "deployment-service.yml", kubeconfigId: "kubeConfigLocal")
-//                 }
-//               }
-//         }
-//
-//         stage('Cleaning up docker') {
-//             steps {
-//                 sh "docker rmi $registry:$imageTag"
-//             }
-//         }
+
+        stage('Docker Build') {
+            steps {
+                dir("${params.PARAM_MODULE}") {
+                    script {
+                        dockerImage = docker.build registry + ":" + imageTag
+                    }
+                }
+            }
+        }
+
+        stage('Docker push') {
+            steps {
+                script {
+                    docker.withRegistry(registryRoot) {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+
+        stage('Kube Deploy') {
+            when {
+                beforeAgent true
+                expression {
+                    return params.SHOULD_DEPLOY
+                }
+            }
+
+            steps {
+                withKubeConfig([credentialsId: 'k3s-sierra-config', serverUrl: 'https://192.168.7.153:6443']) {
+                    dir("${params.PARAM_MODULE}") {
+                    sh '''
+                      deployName="$(grep 'name:' deployment.yaml | head -1 | awk -F: '{print $2}' | tr -d " ")"
+                      kubectl -n cpo delete deployment $deployName
+                      sleep 5
+                      kubectl apply -f deployment.yaml
+                      kubectl -n cpo rollout status deployment $deployName --watch --timeout=5m
+                    '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            sh "docker rmi $registryClr:$imageTag"
+            cleanWs()
+        }
     }
 }
