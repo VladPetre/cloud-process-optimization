@@ -1,13 +1,13 @@
-package ro.phd.vsp.cpolocalizer;
+package ro.phd.vsp.cpocommon;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CpoLocalizerApplication {
+public class CpoCommonApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CpoLocalizerApplication.class, args);
+        SpringApplication.run(CpoCommonApplication.class, args);
     }
 
 }

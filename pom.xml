@@ -13,8 +13,20 @@
     <groupId>ro.phd.vsp</groupId>
     <artifactId>cloud-process-optimization</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>cloud-process-optimization</name>
+    <packaging>pom</packaging>
+    <name>cpo</name>
     <description>Cloud processes optimizations</description>
+
+    <modules>
+        <module>cpo-common</module>
+        <module>cpo-analyser</module>
+        <module>cpo-auth</module>
+        <module>cpo-enhancer</module>
+        <module>cpo-gateway</module>
+        <module>cpo-notifier</module>
+        <module>cpo-processor</module>
+        <module>cpo-sanitizer</module>
+    </modules>
 
     <properties>
         <java.version>17</java.version>
