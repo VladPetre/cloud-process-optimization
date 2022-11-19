@@ -1,0 +1,23 @@
+spring:
+  main:
+    banner-mode: off
+  sql:
+    init:
+      platform: postgres
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_SVC}:5432/enhancer
+    username: ${PG_UN}
+    password: ${PG_PS}
+    hikari:
+      maximum-pool-size: ${PG_MAX_POOL_SIZE:10}
+  jpa:
+    show-sql: false
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+

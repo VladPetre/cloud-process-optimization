@@ -1,0 +1,7 @@
+cpo:
+  jwt:
+    signing-key: aEVOb1ROdDdkaU5rdm03V3ZpVXoyUVZ1U3NmY0VjdWJD
+    issuer: dnNwLWNwbw==
+spring:
+  main:
+    banner-mode: off
