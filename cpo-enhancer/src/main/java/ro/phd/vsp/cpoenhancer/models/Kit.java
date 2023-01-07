@@ -1,17 +1,16 @@
 package ro.phd.vsp.cpoenhancer.models;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.Set;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import java.util.Set;
-import java.util.UUID;
 
 @Entity(name = "kits")
 @Table(name = "kits")
@@ -21,15 +20,15 @@ import java.util.UUID;
 @ToString
 public class Kit {
 
-    @Id
-    private UUID kid;
-    private String kitName;
-    private String kitLocation;
+  @Id
+  private UUID kid;
+  private String kitName;
+  private String kitLocation;
 
-    @OneToMany(
-            mappedBy = "kit",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private Set<Sensor> sensors;
+  @OneToMany(
+      mappedBy = "kit",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true
+  )
+  private Set<Sensor> sensors;
 }

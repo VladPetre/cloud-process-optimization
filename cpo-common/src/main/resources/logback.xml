@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+  <springProperty scope="context" name="APP_NAME" source="cpo.app.name"/>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%magenta([%d{yyyy-MM-dd HH:mm:ss.SSS}]) %cyan(ST=${APP_NAME}) %cyan(SID=${HOSTNAME}) [%thread] %clr(%level) %highlight(%logger{36}@%method:%line) - %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="STDOUT"/>
+  </root>
+</configuration>

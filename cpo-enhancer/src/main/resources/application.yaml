@@ -1,3 +1,6 @@
+cpo:
+  app:
+    name: ENH
 spring:
   main:
     banner-mode: off

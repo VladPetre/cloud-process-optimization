@@ -1,2 +1,20 @@
 server:
   port: 8081
+
+cpo:
+  services:
+    auth:
+      uri: http://localhost:8082
+    processor:
+      uri: http://localhost:8083
+
+#spring:
+#  cloud:
+#    gateway:
+#      globalcors:
+#        cors-configurations:
+#          '[/**]':
+#            allowedOrigins: "*"
+#            allowedMethods:
+#              - GET
+#              - POST

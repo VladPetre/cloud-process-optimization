@@ -27,66 +27,68 @@ import ro.phd.vsp.cpocommon.exception.UnauthorizedException;
 @Slf4j
 public class AuthService {
 
-    private final Map<UUID, Set<UUID>> registeredDevices = new HashMap<>();
-    private final WebClient webClient;
+  private final Map<UUID, Set<UUID>> registeredDevices = new HashMap<>();
+  private final WebClient webClient;
 
-    @Value("${cpo.jwt.signing-key}")
-    private String signingKey;
+  @Value("${cpo.jwt.signing-key}")
+  private String signingKey;
 
-    @Value("${cpo.jwt.issuer}")
-    private String issuer;
+  @Value("${cpo.jwt.issuer}")
+  private String issuer;
 
-    /**
-     * Authorize the device: check if JWT Token is valid and if the device is registered to a kit
-     *
-     * @param token - JWT token
-     * @param sid   - Device ID
-     */
-    public void authorize(String token, String sid) {
-        Claims claims = validateToken(token);
+  /**
+   * Authorize the device: check if JWT Token is valid and if the device is registered to a kit
+   *
+   * @param token - JWT token
+   * @param sid   - Device ID
+   */
+  public void authorize(String token, String sid) {
+    Claims claims = validateToken(token.replace("Bearer ",""));
 
-        if (!claims.containsKey(KIT_ID_CLAIM_NAME)) {
-            throw new UnauthorizedException("Invalid KIT_ID claim.");
-        }
-
-        Object kitIdClaim = claims.get(KIT_ID_CLAIM_NAME);
-        if (Objects.nonNull(kitIdClaim) && !isDeviceRegistered(kitIdClaim.toString(), sid)) {
-            throw new UnauthorizedException("Device not registered.");
-        }
+    if (!claims.containsKey(KIT_ID_CLAIM_NAME) || !sid.equals(claims.getSubject())) {
+      throw new UnauthorizedException("Invalid KIT_ID claim.");
     }
 
-    private Claims validateToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(Base64.getDecoder().decode(signingKey))
-                .requireIssuer(new String(Base64.getDecoder().decode(issuer)))
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+    Object kitIdClaim = claims.get(KIT_ID_CLAIM_NAME);
+    if (Objects.nonNull(kitIdClaim) && !isDeviceRegistered(kitIdClaim.toString(), sid)) {
+      throw new UnauthorizedException("Device not registered.");
+    }
+  }
+
+  private Claims validateToken(String token) {
+    return Jwts.parserBuilder()
+        .setSigningKey(Base64.getDecoder().decode(signingKey))
+        .requireIssuer(new String(Base64.getDecoder().decode(issuer)))
+        .build()
+        .parseClaimsJws(token)
+        .getBody();
+  }
+
+  private boolean isDeviceRegistered(String kid, String sid) {
+    return getRegisteredDevicesByKitId(kid)
+        .map(s -> s.contains(UUID.fromString(sid)))
+        .orElseThrow(UnauthorizedException::new);
+  }
+
+  private Optional<Set<UUID>> getRegisteredDevicesByKitId(String key) {
+    UUID kid = UUID.fromString(key);
+
+    if (registeredDevices.get(kid) == null) {
+      registeredDevices.putAll(updateCacheFromEnhancer(key));
     }
 
-    private boolean isDeviceRegistered(String kid, String sid) {
-        return getRegisteredDevicesByKitId(kid)
-                .map(s -> s.contains(UUID.fromString(sid)))
-                .orElseThrow(UnauthorizedException::new);
-    }
+    return Optional.of(registeredDevices.get(kid));
+  }
 
-    private Optional<Set<UUID>> getRegisteredDevicesByKitId(String key) {
-        if (registeredDevices.entrySet().isEmpty()) {
-            registeredDevices.putAll(updateCacheFromEnhancer());
-        }
+  private Map<UUID, Set<UUID>> updateCacheFromEnhancer(String kid) {
+    log.info("Retrieving registered devices from cpo-enhancer...");
 
-        return Optional.of(registeredDevices.get(UUID.fromString(key)));
-    }
-
-    private Map<UUID, Set<UUID>> updateCacheFromEnhancer() {
-        log.info("Retrieving registered devices from cpo-enhancer...");
-
-        return webClient.get().uri("/devices/links")
-                .headers(h -> buildHeaders("guid.toString()"))
-                .retrieve()
-                .bodyToMono(RegisteredDevicesDTO.class)
-                .map(RegisteredDevicesDTO::registeredDevices)
-                .block(Duration.of(500, ChronoUnit.MILLIS));
-    }
+    return webClient.get().uri("/devices/" + kid + "/links")
+        .headers(h -> buildHeaders("guid.toString()"))
+        .retrieve()
+        .bodyToMono(RegisteredDevicesDTO.class)
+        .map(RegisteredDevicesDTO::registeredDevices)
+        .block(Duration.of(500, ChronoUnit.MILLIS));
+  }
 
 }

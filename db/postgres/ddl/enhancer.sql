@@ -13,18 +13,26 @@ CREATE TABLE sensors
 
 CREATE TABLE kits
 (
-    kid       uuid not null
+    kid          uuid not null
         constraint kits_pkey primary key,
     kit_name     varchar(15),
     kit_location varchar(100)
 );
 
--- CREATE TABLE kits_sensors
--- (
---     id  bigserial not null
---         constraint alert_config_pkey primary key,
---     kit_id uuid,
---     sensor_id uuid
--- );
+CREATE TABLE commands_configs
+(
+    id          bigserial
+        primary key,
+    cmd         varchar(10),
+    cmd_rule    varchar(10),
+    cmd_type    varchar(15),
+    location    varchar(100),
+    multiplier  double precision,
+    ref_value   double precision,
+    sensor_type varchar(15),
+    priority    varchar(7)
+);
 
--- CREATE UNIQUE INDEX kits_sensors_sid_idx ON kits_sensors (sensor_id);
+alter table commands_configs
+    owner to enhancer;
+

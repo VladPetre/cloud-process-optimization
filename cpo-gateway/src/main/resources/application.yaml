@@ -1,1 +1,19 @@
+cpo:
+  app:
+    name: GTW
+  services:
+    processor:
+      uri: http://localhost:8083
 
+spring:
+  main:
+    banner-mode: off
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+    jmx:
+      exposure:
+        include: "*"

@@ -1,7 +1,21 @@
 cpo:
+  app:
+    name: AUTH
   jwt:
     signing-key: aEVOb1ROdDdkaU5rdm03V3ZpVXoyUVZ1U3NmY0VjdWJD
     issuer: dnNwLWNwbw==
+  services:
+    enhancer:
+      uri: http://localhost:8084
 spring:
   main:
     banner-mode: off
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+    jmx:
+      exposure:
+        include: "*"

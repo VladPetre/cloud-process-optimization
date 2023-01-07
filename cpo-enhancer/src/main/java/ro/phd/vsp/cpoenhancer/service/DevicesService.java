@@ -27,13 +27,12 @@ public class DevicesService {
   private final SensorsRepository sensorsRepository;
   private final CommandsConfigsRepository commandsConfigsRepository;
 
-  public RegisteredDevicesDTO getRegisteredDevicesList() {
+  public RegisteredDevicesDTO getRegisteredDevicesList(String kid) {
     Map<UUID, Set<UUID>> registeredDevices = new HashMap<>();
 
-    kitsRepository.findAll().forEach(kit ->
-        registeredDevices.put(kit.getKid(),
-            kit.getSensors().stream().map(Sensor::getSid).collect(Collectors.toSet()))
-    );
+    kitsRepository.findById(UUID.fromString(kid))
+        .ifPresent(kit -> registeredDevices.put(kit.getKid(),
+            kit.getSensors().stream().map(Sensor::getSid).collect(Collectors.toSet())));
 
     return new RegisteredDevicesDTO(registeredDevices);
   }
@@ -68,11 +67,12 @@ public class DevicesService {
                 kitLocation)));
 
     return CommandConfigDTO.builder()
+        .cmd(config.getCmd())
         .cmdRule(config.getCmdRule())
         .cmdType(config.getCmdType())
         .multiplier(config.getMultiplier())
-        .lowVal(config.getLowVal())
-        .highVal(config.getHighVal())
+        .refValue(config.getRefValue())
+        .priority(config.getPriority())
         .build();
   }
 }
