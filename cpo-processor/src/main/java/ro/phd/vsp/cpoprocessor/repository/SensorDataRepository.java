@@ -10,6 +10,6 @@ import ro.phd.vsp.cpoprocessor.model.SensorData;
 @Repository
 public interface SensorDataRepository extends JpaRepository<SensorData, UUID> {
 
-  List<SensorData> findByIdAndUpdatedOnGreaterThanEqual(UUID id, LocalDateTime ldt);
+  List<SensorData> findBySidAndUpdatedOnGreaterThanEqual(UUID sid, LocalDateTime ldt);
 
 }

@@ -1,0 +1,37 @@
+### caller
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cpo-services
+  namespace: cpo
+  labels:
+    team: vsp
+    release: prom-stack
+spec:
+  selector:
+    matchLabels:
+      team: vsp
+  namespaceSelector:
+    matchNames:
+      - cpo
+  endpoints:
+    - port: gateway-p
+      path: '/actuator/prometheus'
+      interval: 5s
+      honorLabels: true
+    - port: auth-p
+      path: '/actuator/prometheus'
+      interval: 5s
+      honorLabels: true
+    - port: enhancer-p
+      path: '/actuator/prometheus'
+      interval: 5s
+      honorLabels: true
+    - port: processor-p
+      path: '/actuator/prometheus'
+      interval: 5s
+      honorLabels: true
+    - port: notifier-p
+      path: '/actuator/prometheus'
+      interval: 5s
+      honorLabels: true

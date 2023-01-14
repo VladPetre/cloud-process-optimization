@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import ro.phd.vsp.cpocommon.dtos.AlertDTO;
 import ro.phd.vsp.cpocommon.dtos.SensorDataDTO;
 
@@ -24,15 +25,14 @@ public class CommunicationService {
 
   public SensorDataDTO enrichSensorData(UUID sid) {
     return enhancerClient.get().uri("/devices/" + sid)
-//        .headers(h -> buildHeaders("guid.toString()"))
         .retrieve()
         .bodyToMono(SensorDataDTO.class)
         .block(Duration.of(500, ChronoUnit.MILLIS));
   }
 
   public void sendAlert(AlertDTO alert) {
-    notifierClient.post().uri("")
-        .body(alert, AlertDTO.class)
+    notifierClient.post().uri("alerts")
+        .body(Mono.just(alert), AlertDTO.class)
         .retrieve()
         .bodyToMono(Void.class)
         .block();

@@ -30,7 +30,7 @@ public class Command {
   private String cmd;
   private String reason;
   private LocalDateTime createdOn;
-  private Boolean executed;
+  private boolean executed;
   private Integer retries;
 
 }

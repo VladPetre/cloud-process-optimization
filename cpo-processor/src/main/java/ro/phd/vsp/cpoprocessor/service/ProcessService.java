@@ -34,9 +34,8 @@ public class ProcessService {
     SensorDataNtt dataNtt = dtoToNtt(commsService.enrichSensorData(sensorValue.sid()));
     fillValues(sensorValue, dataNtt);
 
-    dataService.saveValues(dataNtt);
-
     AlertDTO alert = computeAlert(dataNtt);
+    dataService.saveValues(dataNtt);
 
     if (alert == null) {
       log.info("Alert not needed for sid: {}, val: {}", dataNtt.getSid(), dataNtt.getValue());
@@ -44,7 +43,6 @@ public class ProcessService {
     }
 
     commsService.sendAlert(alert);
-
   }
 
   private AlertDTO computeAlert(SensorDataNtt dataNtt) {

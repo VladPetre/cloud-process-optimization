@@ -39,7 +39,7 @@ public final class EntityDtoMapper {
         .message(n.getMessage())
         .createdOn(n.getCreatedOn())
         .retries(n.getRetries())
-        .sent(n.getSent())
+        .sent(n.isSent())
         .build();
   }
 
@@ -49,7 +49,7 @@ public final class EntityDtoMapper {
         .reason(cmd.getReason())
         .createdOn(cmd.getCreatedOn())
         .retries(cmd.getRetries())
-        .executed(cmd.getExecuted())
+        .executed(cmd.isExecuted())
         .build();
   }
 

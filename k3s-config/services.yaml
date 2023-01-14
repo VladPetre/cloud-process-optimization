@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-svc
+  namespace: cpo
+  labels:
+    app: gateway-svc
+    team: vsp
+spec:
+  selector:
+    app: gtw
+  type: ClusterIP
+  ports:
+    - name: gateway-p
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: enhancer-svc
+  namespace: cpo
+  labels:
+    app: enhancer-svc
+    team: vsp
+spec:
+  selector:
+    app: enhancer
+  type: ClusterIP
+  ports:
+    - name: enhancer-p
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-svc
+  namespace: cpo
+  labels:
+    app: auth-svc
+    team: vsp
+spec:
+  selector:
+    app: auth
+  type: ClusterIP
+  ports:
+    - name: auth-p
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: processor-svc
+  namespace: cpo
+  labels:
+    app: processor-svc
+    team: vsp
+spec:
+  selector:
+    app: processor
+  type: ClusterIP
+  ports:
+    - name: processor-p
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifier-svc
+  namespace: cpo
+  labels:
+    app: notifier-svc
+    team: vsp
+spec:
+  selector:
+    app: notifier
+  type: ClusterIP
+  ports:
+    - name: notifier-p
+      port: 8080
+      targetPort: 8080

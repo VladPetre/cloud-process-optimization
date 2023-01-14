@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: cpo
+data:
+  pg-service: "pg-db-svc-ext"
+  pg-max-pool-size: "7"
+  auth-uri: "http://auth-svc.cpo.svc.cluster.local:8080"
+  enhancer-uri: "http://enhancer-svc.cpo.svc.cluster.local:8080"
+  processor-uri: "http://processor-svc.cpo.svc.cluster.local:8080"
+  notifier-uri: "http://notifier-svc.cpo.svc.cluster.local:8080"

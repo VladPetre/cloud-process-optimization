@@ -33,7 +33,7 @@ public class NotificationService {
 
   private NotificationDTO sendNotification(AlertDTO alertDTO) {
 
-    if (alertDTO.notification() != null) {
+    if (alertDTO.notification() == null) {
       return null;
     }
 
@@ -49,9 +49,9 @@ public class NotificationService {
         notification.setRetries(notification.getRetries() + 1);
       }
     }
-    while (!notification.getSent() && notification.getRetries() <= MAX_RETRIES);
+    while (!notification.isSent() && notification.getRetries() <= MAX_RETRIES);
 
-    if (!notification.getSent()) {
+    if (!notification.isSent()) {
       log.error("Could not send notification: {}", notification.getId());
     }
 
@@ -61,7 +61,7 @@ public class NotificationService {
 
   private CommandDTO executeCmd(AlertDTO alertDTO) {
 
-    if (alertDTO.command() != null) {
+    if (alertDTO.command() == null) {
       return null;
     }
 
@@ -76,9 +76,9 @@ public class NotificationService {
       } catch (InterruptedException e) {
         cmd.setRetries(cmd.getRetries() + 1);
       }
-    } while (!cmd.getExecuted() && cmd.getRetries() <= MAX_RETRIES);
+    } while (!cmd.isExecuted() && cmd.getRetries() <= MAX_RETRIES);
 
-    if (!cmd.getExecuted()) {
+    if (!cmd.isExecuted()) {
       log.error("Could not execute command: {}", cmd.getId());
     }
 
@@ -86,16 +86,16 @@ public class NotificationService {
   }
 
   private boolean sendNotification(Notification n) throws InterruptedException {
-    Thread.sleep(getRandomNumber(0, 25));
+    Thread.sleep(getRandomNumber(1, 25));
     return true;
   }
 
   private boolean executeCommand(Command c) throws InterruptedException {
-    Thread.sleep(getRandomNumber(0, 25));
+    Thread.sleep(getRandomNumber(1, 25));
     return true;
   }
 
   public int getRandomNumber(int min, int max) {
-    return ((random.nextInt() * (max - min)) + min);
+    return random.nextInt(min,(max - min) + 1) + min;
   }
 }

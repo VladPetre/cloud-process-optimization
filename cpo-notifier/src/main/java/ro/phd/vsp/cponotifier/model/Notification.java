@@ -31,7 +31,7 @@ public class Notification {
   private String sendTo;
   private String message;
   private LocalDateTime createdOn;
-  private Boolean sent;
+  private boolean sent;
   private Integer retries;
 
 }

@@ -16,7 +16,6 @@
     <description>cpo-auth</description>
 
     <properties>
-        <java.version>17</java.version>
         <jjwt.version>0.11.5</jjwt.version>
     </properties>
 
@@ -24,6 +23,7 @@
         <dependency>
             <groupId>ro.phd.vsp</groupId>
             <artifactId>cpo-common</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -79,6 +79,10 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <image>
+                        <name>adu.lan:5000/cpo/${project.artifactId}:${project.version}</name>
+                        <publish>true</publish>
+                    </image>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

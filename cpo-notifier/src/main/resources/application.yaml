@@ -1,6 +1,3 @@
-cpo:
-  app:
-    name: NTFR
 spring:
   main:
     banner-mode: off
@@ -12,7 +9,7 @@ spring:
     username: ${PG_UN}
     password: ${PG_PS}
     hikari:
-      maximum-pool-size: ${PG_MAX_POOL_SIZE:10}
+      maximum-pool-size: ${PG_MAX_POOL_SIZE:5}
   jpa:
     show-sql: false
     generate-ddl: false
@@ -23,3 +20,10 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
+  application:
+    name: NTFR
+
+server:
+  shutdown: graceful

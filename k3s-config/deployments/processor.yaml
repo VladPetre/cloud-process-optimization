@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: processor
+  namespace: cpo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: processor
+  template:
+    metadata:
+      name: processor-pod
+      labels:
+        app: processor
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      containers:
+        - name: processor-container
+          image: adu.lan/cpo/cpo-processor:latest
+          imagePullPolicy: Always
+          ports:
+            - name: processor-p
+              containerPort: 8080
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /availability/live
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 2
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /availability/ready
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 2
+            successThreshold: 1
+          env:
+            - name: PG_UN
+              valueFrom:
+                secretKeyRef:
+                  name: pg-db-creds
+                  key: proc_un
+            - name: PG_PS
+              valueFrom:
+                secretKeyRef:
+                  name: pg-db-creds
+                  key: proc_ps
+            - name: POSTGRES_SVC
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: pg-service
+            - name: PG_MAX_POOL_SIZE
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: pg-max-pool-size
+            - name: ENHANCER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: processor-uri
+            - name: NOTIFIER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: notifier-uri
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - processor
+                topologyKey: "kubernetes.io/hostname"
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values:
+                      - sierra

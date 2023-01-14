@@ -1,15 +1,21 @@
 cpo:
-  app:
-    name: AUTH
   jwt:
     signing-key: aEVOb1ROdDdkaU5rdm03V3ZpVXoyUVZ1U3NmY0VjdWJD
     issuer: dnNwLWNwbw==
   services:
     enhancer:
-      uri: http://localhost:8084
+      uri: ${ENHANCER_URL}
+
 spring:
   main:
     banner-mode: off
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
+  application:
+    name: AUTH
+
+server:
+  shutdown: graceful
 
 management:
   endpoints:

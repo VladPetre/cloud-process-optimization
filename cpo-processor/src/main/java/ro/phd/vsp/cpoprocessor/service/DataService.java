@@ -44,7 +44,7 @@ public class DataService {
 
   public List<SensorData> getAllByUpdatedOn(UUID sid, long amountToSubstract,
       TemporalUnit unitToSubstract) {
-    return dataRepository.findByIdAndUpdatedOnGreaterThanEqual(sid,
+    return dataRepository.findBySidAndUpdatedOnGreaterThanEqual(sid,
         LocalDateTime.now().minus(amountToSubstract, unitToSubstract));
   }
 
